@@ -9,14 +9,24 @@ import {
   SafeAreaView,
 } from "react-native";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { useRouter } from "expo-router"; // ✅ navigation
+import { Ionicons } from "@expo/vector-icons";
+
 
 // ✅ Initialize Gemini with API key (use env for security)
-const genAI = new GoogleGenerativeAI(process.env.EXPO_PUBLIC_GEMINI_API_KEY || "");
+const genAI = new GoogleGenerativeAI(
+  process.env.EXPO_PUBLIC_GEMINI_API_KEY || ""
+);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 export default function App() {
+  const router = useRouter();
   const [messages, setMessages] = useState([
-    { id: "1", sender: "bot", text: "👋 Hi! I’m VetCare AI. How can I help your pet today?" },
+    {
+      id: "1",
+      sender: "bot",
+      text: "👋 Hi! I’m VetCare AI. How can I help your pet today?",
+    },
   ]);
   const [input, setInput] = useState("");
 
@@ -24,7 +34,11 @@ export default function App() {
     if (!input.trim()) return;
 
     // Add user message
-    const newMessage = { id: Date.now().toString(), sender: "user", text: input };
+    const newMessage = {
+      id: Date.now().toString(),
+      sender: "user",
+      text: input,
+    };
     const updatedMessages = [...messages, newMessage];
     setMessages(updatedMessages);
     setInput("");
@@ -35,22 +49,33 @@ export default function App() {
       const botReply = result.response.text();
 
       // Add AI response
-      setMessages([...updatedMessages, { id: Date.now().toString(), sender: "bot", text: botReply }]);
+      setMessages([
+        ...updatedMessages,
+        { id: Date.now().toString(), sender: "bot", text: botReply },
+      ]);
     } catch (error) {
       console.error("Chat error:", error);
       setMessages([
         ...updatedMessages,
-        { id: Date.now().toString(), sender: "bot", text: "⚠️ Sorry, I couldn’t fetch a response." },
+        {
+          id: Date.now().toString(),
+          sender: "bot",
+          text: "⚠️ Sorry, I couldn’t fetch a response.",
+        },
       ]);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerText}>VetCare AI</Text>
-      </View>
+      {/* ✅ Header with Back Arrow */}
+    <View style={styles.header}>
+  <TouchableOpacity onPress={() => router.push("/dashboard")}>
+    <Ionicons name="arrow-back" size={24} color="white" />
+  </TouchableOpacity>
+  <Text style={styles.headerText}>VetCare AI</Text>
+</View>
+
 
       {/* Chat Section */}
       <FlatList
@@ -63,7 +88,12 @@ export default function App() {
               item.sender === "user" ? styles.userMessage : styles.botMessage,
             ]}
           >
-            <Text style={[styles.messageText, { color: item.sender === "user" ? "white" : "black" }]}>
+            <Text
+              style={[
+                styles.messageText,
+                { color: item.sender === "user" ? "white" : "black" },
+              ]}
+            >
               {item.text}
             </Text>
           </View>
@@ -89,7 +119,17 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f9f9f9" },
-  header: { padding: 15, backgroundColor: "#16a34a" },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 15,
+    backgroundColor: "#16a34a",
+  },
+  arrow: {
+    fontSize: 22,
+    color: "white", // ✅ arrow color
+    marginRight: 10,
+  },
   headerText: { color: "white", fontSize: 18, fontWeight: "bold" },
   message: {
     maxWidth: "70%",
