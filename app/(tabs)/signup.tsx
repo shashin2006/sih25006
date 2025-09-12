@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 
@@ -29,28 +28,32 @@ export default function Signup() {
     password: "",
   });
 
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
   const handleChange = (key: string, value: string) => {
     setForm({ ...form, [key]: value });
+    setErrors({ ...errors, [key]: "" }); // clear error when typing
   };
 
   const handleSignup = () => {
-    // ✅ Validation for mandatory fields
-    if (
-      !form.name ||
-      !form.age ||
-      !form.location ||
-      !form.farmName ||
-      !form.farmType ||
-      !form.phone ||
-      !form.email ||
-      !form.password
-    ) {
-      Alert.alert("Missing Fields", "Please fill all required (*) fields.");
-      return;
-    }
+    let newErrors: { [key: string]: string } = {};
 
-    // ✅ If valid, go to farmer page
-    router.push("/Login");
+    // Required fields
+    if (!form.name) newErrors.name = "This field is required";
+    if (!form.age) newErrors.age = "This field is required";
+    if (!form.location) newErrors.location = "This field is required";
+    if (!form.farmName) newErrors.farmName = "This field is required";
+    if (!form.farmType) newErrors.farmType = "This field is required";
+    if (!form.phone) newErrors.phone = "This field is required";
+    if (!form.email) newErrors.email = "This field is required";
+    if (!form.password) newErrors.password = "This field is required";
+
+    setErrors(newErrors);
+
+    // If no errors, proceed
+    if (Object.keys(newErrors).length === 0) {
+      router.push("/Login");
+    }
   };
 
   const renderLabel = (label: string, required = false) => (
@@ -59,124 +62,53 @@ export default function Signup() {
     </Text>
   );
 
+  const renderInput = (
+    key: keyof typeof form,
+    label: string,
+    placeholder: string,
+    required = false,
+    options: { secureTextEntry?: boolean; keyboardType?: any } = {}
+  ) => (
+    <View style={{ marginBottom: 15 }}>
+      {renderLabel(label, required)}
+      <TextInput
+        style={styles.input}
+        placeholder={placeholder}
+        value={form[key]}
+        onChangeText={(text) => handleChange(key, text)}
+        secureTextEntry={options.secureTextEntry || false}
+        keyboardType={options.keyboardType || "default"}
+      />
+      {errors[key] && <Text style={styles.error}>{errors[key]}</Text>}
+    </View>
+  );
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Farmer Signup</Text>
 
-      {/* Personal Info */}
-      {renderLabel("Full Name", true)}
-      <TextInput
-        style={styles.input}
-        placeholder="Enter your name"
-        value={form.name}
-        onChangeText={(text) => handleChange("name", text)}
-      />
+      {renderInput("name", "Full Name", "Enter your name", true)}
+      {renderInput("age", "Age", "Enter age", true, { keyboardType: "numeric" })}
+      {renderInput("location", "Location", "Enter location", true)}
+      {renderInput("farmName", "Farm Name", "Enter farm name", true)}
+      {renderInput("farmType", "Farm Type", "Ex: Crops + Livestock", true)}
+      {renderInput("experience", "Experience", "Ex: 18 years in farming")}
+      {renderInput("farmSize", "Farm Size", "Ex: 15 acres")}
+      {renderInput("yearsRunning", "Years Running", "Ex: 20", false, {
+        keyboardType: "numeric",
+      })}
+      {renderInput("animals", "Animals on Farm", "Ex: Poultry:150, Pigs:40")}
+      {renderInput("certifications", "Certifications", "Ex: Organic Certified")}
+      {renderInput("phone", "Phone", "Enter phone number", true, {
+        keyboardType: "phone-pad",
+      })}
+      {renderInput("email", "Email", "Enter email", true, {
+        keyboardType: "email-address",
+      })}
+      {renderInput("password", "Password", "Enter password", true, {
+        secureTextEntry: true,
+      })}
 
-      {renderLabel("Age", true)}
-      <TextInput
-        style={styles.input}
-        placeholder="Enter age"
-        keyboardType="numeric"
-        value={form.age}
-        onChangeText={(text) => handleChange("age", text)}
-      />
-
-      {renderLabel("Location", true)}
-      <TextInput
-        style={styles.input}
-        placeholder="Enter location"
-        value={form.location}
-        onChangeText={(text) => handleChange("location", text)}
-      />
-
-      {/* Farm Info */}
-      {renderLabel("Farm Name", true)}
-      <TextInput
-        style={styles.input}
-        placeholder="Enter farm name"
-        value={form.farmName}
-        onChangeText={(text) => handleChange("farmName", text)}
-      />
-
-      {renderLabel("Farm Type", true)}
-      <TextInput
-        style={styles.input}
-        placeholder="Ex: Crops + Livestock"
-        value={form.farmType}
-        onChangeText={(text) => handleChange("farmType", text)}
-      />
-
-      {renderLabel("Experience")}
-      <TextInput
-        style={styles.input}
-        placeholder="Ex: 18 years in farming"
-        value={form.experience}
-        onChangeText={(text) => handleChange("experience", text)}
-      />
-
-      {renderLabel("Farm Size")}
-      <TextInput
-        style={styles.input}
-        placeholder="Ex: 15 acres"
-        value={form.farmSize}
-        onChangeText={(text) => handleChange("farmSize", text)}
-      />
-
-      {renderLabel("Years Running")}
-      <TextInput
-        style={styles.input}
-        placeholder="Ex: 20"
-        keyboardType="numeric"
-        value={form.yearsRunning}
-        onChangeText={(text) => handleChange("yearsRunning", text)}
-      />
-
-      {/* Animals & Certifications */}
-      {renderLabel("Animals on Farm")}
-      <TextInput
-        style={styles.input}
-        placeholder="Ex: Poultry:150, Pigs:40"
-        value={form.animals}
-        onChangeText={(text) => handleChange("animals", text)}
-      />
-
-      {renderLabel("Certifications")}
-      <TextInput
-        style={styles.input}
-        placeholder="Ex: Organic Certified"
-        value={form.certifications}
-        onChangeText={(text) => handleChange("certifications", text)}
-      />
-
-      {/* Contact Info */}
-      {renderLabel("Phone", true)}
-      <TextInput
-        style={styles.input}
-        placeholder="Enter phone number"
-        keyboardType="phone-pad"
-        value={form.phone}
-        onChangeText={(text) => handleChange("phone", text)}
-      />
-
-      {renderLabel("Email", true)}
-      <TextInput
-        style={styles.input}
-        placeholder="Enter email"
-        keyboardType="email-address"
-        value={form.email}
-        onChangeText={(text) => handleChange("email", text)}
-      />
-
-      {renderLabel("Password", true)}
-      <TextInput
-        style={styles.input}
-        placeholder="Enter password"
-        secureTextEntry
-        value={form.password}
-        onChangeText={(text) => handleChange("password", text)}
-      />
-
-      {/* Submit Button */}
       <TouchableOpacity style={styles.button} onPress={handleSignup}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
@@ -194,7 +126,6 @@ export default function Signup() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    justifyContent: "center",
     padding: 20,
     backgroundColor: "#F2FCE2",
   },
@@ -217,8 +148,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#ddd",
-    marginBottom: 15,
     fontSize: 16,
+  },
+  error: {
+    color: "red",
+    fontSize: 14,
+    marginTop: 3,
   },
   button: {
     backgroundColor: "#2E7D32",
