@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
-// Validation schema using Yup
+
 const validationSchema = Yup.object().shape({
   username: Yup.string().required('Email or Username is required'),
   password: Yup.string().required('Password is required'),
@@ -15,7 +15,7 @@ export default function Login() {
 
   const handleLogin = (values: { username: string; password: string }) => {
     console.log(values);
-    router.push('/dashboard');
+    router.push('/vendors');
   };
   const handleLog = (values: { username: string; password: string }) => {
     console.log(values);
@@ -27,7 +27,7 @@ export default function Login() {
       <Text style={styles.title}>Login to BioSecure Farm Hub</Text>
 
       <Formik
-        initialValues={{ username: '', password: '' }}
+        initialValues={{ username: 'shashin', password: '123456789' }}
         validationSchema={validationSchema}
         onSubmit={handleLogin}
       >
