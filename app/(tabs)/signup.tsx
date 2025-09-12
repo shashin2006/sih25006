@@ -1,204 +1,244 @@
-import React from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Picker, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
-
-// Validation schema
-const signupSchema = Yup.object().shape({
-  fullName: Yup.string().required('Full Name is required'),
-  phone: Yup.string().required('Phone number is required'),
-  email: Yup.string().email('Invalid email'),
-  preferredLanguage: Yup.string().required('Preferred Language is required'),
-  farmName: Yup.string().required('Farm Name is required'),
-  location: Yup.string().required('Location is required'),
-  farmSize: Yup.string().required('Farm Size is required'),
-  species: Yup.string().required('Select species'),
-  numberOfAnimals: Yup.number().required('Enter number of animals'),
-  source: Yup.string().required('Source is required'),
-  username: Yup.string().required('Username is required'),
-  password: Yup.string().min(6, 'Min 6 characters').required('Password is required'),
-});
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Alert,
+} from "react-native";
+import { useRouter } from "expo-router";
 
 export default function Signup() {
   const router = useRouter();
 
-  const handleSignup = (values: any) => {
-    console.log(values);
-    // After signup redirect to login
-    router.push('/Login');
+  const [form, setForm] = useState({
+    name: "",
+    age: "",
+    location: "",
+    farmName: "",
+    farmType: "",
+    experience: "",
+    farmSize: "",
+    yearsRunning: "",
+    animals: "",
+    certifications: "",
+    phone: "",
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (key: string, value: string) => {
+    setForm({ ...form, [key]: value });
   };
 
+  const handleSignup = () => {
+    // ✅ Validation for mandatory fields
+    if (
+      !form.name ||
+      !form.age ||
+      !form.location ||
+      !form.farmName ||
+      !form.farmType ||
+      !form.phone ||
+      !form.email ||
+      !form.password
+    ) {
+      Alert.alert("Missing Fields", "Please fill all required (*) fields.");
+      return;
+    }
+
+    // ✅ If valid, go to farmer page
+    router.push("/Login");
+  };
+
+  const renderLabel = (label: string, required = false) => (
+    <Text style={styles.label}>
+      {label} {required && <Text style={{ color: "red" }}>*</Text>}
+    </Text>
+  );
+
   return (
-    <ScrollView contentContainerStyle={styles.scroll}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Farmer Signup</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Farmer Signup</Text>
 
-        <Formik
-          initialValues={{
-            fullName: '',
-            gender: '',
-            age: '',
-            phone: '',
-            email: '',
-            preferredLanguage: '',
-            farmName: '',
-            location: '',
-            farmSize: '',
-            species: '',
-            numberOfAnimals: '',
-            source: '',
-            username: '',
-            password: '',
-          }}
-          validationSchema={signupSchema}
-          onSubmit={handleSignup}
-        >
-          {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-            <View style={styles.form}>
-              {/* Farmer Info */}
-              <TextInput style={styles.input} placeholder="Full Name (Farmer / Owner)"
-                onChangeText={handleChange('fullName')} onBlur={handleBlur('fullName')}
-                value={values.fullName} />
-              {touched.fullName && errors.fullName && <Text style={styles.errorText}>{errors.fullName}</Text>}
+      {/* Personal Info */}
+      {renderLabel("Full Name", true)}
+      <TextInput
+        style={styles.input}
+        placeholder="Enter your name"
+        value={form.name}
+        onChangeText={(text) => handleChange("name", text)}
+      />
 
-              <TextInput style={styles.input} placeholder="Gender (optional)"
-                onChangeText={handleChange('gender')} onBlur={handleBlur('gender')}
-                value={values.gender} />
+      {renderLabel("Age", true)}
+      <TextInput
+        style={styles.input}
+        placeholder="Enter age"
+        keyboardType="numeric"
+        value={form.age}
+        onChangeText={(text) => handleChange("age", text)}
+      />
 
-              <TextInput style={styles.input} placeholder="Age (optional)" keyboardType="numeric"
-                onChangeText={handleChange('age')} onBlur={handleBlur('age')}
-                value={values.age} />
+      {renderLabel("Location", true)}
+      <TextInput
+        style={styles.input}
+        placeholder="Enter location"
+        value={form.location}
+        onChangeText={(text) => handleChange("location", text)}
+      />
 
-              <TextInput style={styles.input} placeholder="Phone Number"
-                keyboardType="phone-pad" onChangeText={handleChange('phone')} onBlur={handleBlur('phone')}
-                value={values.phone} />
-              {touched.phone && errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
+      {/* Farm Info */}
+      {renderLabel("Farm Name", true)}
+      <TextInput
+        style={styles.input}
+        placeholder="Enter farm name"
+        value={form.farmName}
+        onChangeText={(text) => handleChange("farmName", text)}
+      />
 
-              <TextInput style={styles.input} placeholder="Email (optional)" keyboardType="email-address"
-                onChangeText={handleChange('email')} onBlur={handleBlur('email')}
-                value={values.email} />
-              {touched.email && errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+      {renderLabel("Farm Type", true)}
+      <TextInput
+        style={styles.input}
+        placeholder="Ex: Crops + Livestock"
+        value={form.farmType}
+        onChangeText={(text) => handleChange("farmType", text)}
+      />
 
-              <TextInput style={styles.input} placeholder="Preferred Language"
-                onChangeText={handleChange('preferredLanguage')} onBlur={handleBlur('preferredLanguage')}
-                value={values.preferredLanguage} />
-              {touched.preferredLanguage && errors.preferredLanguage && <Text style={styles.errorText}>{errors.preferredLanguage}</Text>}
+      {renderLabel("Experience")}
+      <TextInput
+        style={styles.input}
+        placeholder="Ex: 18 years in farming"
+        value={form.experience}
+        onChangeText={(text) => handleChange("experience", text)}
+      />
 
-              {/* Farm Info */}
-              <TextInput style={styles.input} placeholder="Farm Name"
-                onChangeText={handleChange('farmName')} onBlur={handleBlur('farmName')}
-                value={values.farmName} />
-              {touched.farmName && errors.farmName && <Text style={styles.errorText}>{errors.farmName}</Text>}
+      {renderLabel("Farm Size")}
+      <TextInput
+        style={styles.input}
+        placeholder="Ex: 15 acres"
+        value={form.farmSize}
+        onChangeText={(text) => handleChange("farmSize", text)}
+      />
 
-              <TextInput style={styles.input} placeholder="Location"
-                onChangeText={handleChange('location')} onBlur={handleBlur('location')}
-                value={values.location} />
-              {touched.location && errors.location && <Text style={styles.errorText}>{errors.location}</Text>}
+      {renderLabel("Years Running")}
+      <TextInput
+        style={styles.input}
+        placeholder="Ex: 20"
+        keyboardType="numeric"
+        value={form.yearsRunning}
+        onChangeText={(text) => handleChange("yearsRunning", text)}
+      />
 
-              <TextInput style={styles.input} placeholder="Farm Size"
-                onChangeText={handleChange('farmSize')} onBlur={handleBlur('farmSize')}
-                value={values.farmSize} />
-              {touched.farmSize && errors.farmSize && <Text style={styles.errorText}>{errors.farmSize}</Text>}
+      {/* Animals & Certifications */}
+      {renderLabel("Animals on Farm")}
+      <TextInput
+        style={styles.input}
+        placeholder="Ex: Poultry:150, Pigs:40"
+        value={form.animals}
+        onChangeText={(text) => handleChange("animals", text)}
+      />
 
-              {/* Livestock Info */}
-              <TextInput style={styles.input} placeholder="Species (Pig / Poultry / Both)"
-                onChangeText={handleChange('species')} onBlur={handleBlur('species')}
-                value={values.species} />
-              {touched.species && errors.species && <Text style={styles.errorText}>{errors.species}</Text>}
+      {renderLabel("Certifications")}
+      <TextInput
+        style={styles.input}
+        placeholder="Ex: Organic Certified"
+        value={form.certifications}
+        onChangeText={(text) => handleChange("certifications", text)}
+      />
 
-              <TextInput style={styles.input} placeholder="Number of Animals" keyboardType="numeric"
-                onChangeText={handleChange('numberOfAnimals')} onBlur={handleBlur('numberOfAnimals')}
-                value={values.numberOfAnimals} />
-              {touched.numberOfAnimals && errors.numberOfAnimals && <Text style={styles.errorText}>{errors.numberOfAnimals}</Text>}
+      {/* Contact Info */}
+      {renderLabel("Phone", true)}
+      <TextInput
+        style={styles.input}
+        placeholder="Enter phone number"
+        keyboardType="phone-pad"
+        value={form.phone}
+        onChangeText={(text) => handleChange("phone", text)}
+      />
 
-              <TextInput style={styles.input} placeholder="Source of Animals (Hatchery / Local Market / Imports)"
-                onChangeText={handleChange('source')} onBlur={handleBlur('source')}
-                value={values.source} />
-              {touched.source && errors.source && <Text style={styles.errorText}>{errors.source}</Text>}
+      {renderLabel("Email", true)}
+      <TextInput
+        style={styles.input}
+        placeholder="Enter email"
+        keyboardType="email-address"
+        value={form.email}
+        onChangeText={(text) => handleChange("email", text)}
+      />
 
-              {/* Credentials */}
-              <TextInput style={styles.input} placeholder="Username / Phone ID"
-                onChangeText={handleChange('username')} onBlur={handleBlur('username')}
-                value={values.username} />
-              {touched.username && errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
+      {renderLabel("Password", true)}
+      <TextInput
+        style={styles.input}
+        placeholder="Enter password"
+        secureTextEntry
+        value={form.password}
+        onChangeText={(text) => handleChange("password", text)}
+      />
 
-              <TextInput style={styles.input} placeholder="Password" secureTextEntry
-                onChangeText={handleChange('password')} onBlur={handleBlur('password')}
-                value={values.password} />
-              {touched.password && errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+      {/* Submit Button */}
+      <TouchableOpacity style={styles.button} onPress={handleSignup}>
+        <Text style={styles.buttonText}>Sign Up</Text>
+      </TouchableOpacity>
 
-              {/* Submit */}
-              <TouchableOpacity style={styles.signupButton} onPress={handleSubmit}>
-                <Text style={styles.signupButtonText}>Sign Up</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => router.push('/Login')}>
-                <Text style={styles.switchText}>Already have an account? Login</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </Formik>
-      </View>
+      <Text style={styles.footer}>
+        Already registered?{" "}
+        <Text style={styles.link} onPress={() => router.push("/Login")}>
+          Login
+        </Text>
+      </Text>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    flexGrow: 1,
-  },
   container: {
-    flex: 1,
-    backgroundColor: '#E8F5E9',
+    flexGrow: 1,
+    justifyContent: "center",
     padding: 20,
-    justifyContent: 'center',
+    backgroundColor: "#F2FCE2",
   },
   title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#2E7D32",
     marginBottom: 20,
-    color: '#2E7D32',
+    textAlign: "center",
   },
-  form: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  label: {
+    fontSize: 16,
+    fontWeight: "500",
+    marginBottom: 5,
+    color: "#333",
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
+    backgroundColor: "#fff",
     padding: 12,
     borderRadius: 8,
-    marginBottom: 10,
-    fontSize: 15,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    marginBottom: 15,
+    fontSize: 16,
   },
-  errorText: {
-    color: 'red',
-    marginBottom: 8,
-    fontSize: 13,
-  },
-  signupButton: {
-    backgroundColor: '#4CAF50',
+  button: {
+    backgroundColor: "#2E7D32",
     padding: 15,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 18,
+  },
+  footer: {
+    textAlign: "center",
     marginTop: 10,
-    marginBottom: 15,
+    color: "#555",
   },
-  signupButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  switchText: {
-    color: '#4CAF50',
-    textAlign: 'center',
+  link: {
+    color: "#2E7D32",
+    fontWeight: "bold",
   },
 });
